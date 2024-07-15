@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blockchain Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #blockchain-container {
+      display: flex;
+      overflow-x: auto;
+      width: 100%;
+      max-width: 600px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #blockchain-container::-webkit-scrollbar {
+      display: none;
+    }
+    #blockchain-container p {
+      background-color: white;
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      min-width: 200px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    #blockchain-container p:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Blockchain Manager</h1>
+  <input id="data-input" type="text" placeholder="Enter block data">
+  <button id="add-block-btn">Add Block</button>
+  <button id="show-blockchain-btn">Show Blockchain</button>
+  <div id="blockchain-container"></div>
+
+  <script>
+    let blockchain = [];
+
+    const createGenesisBlock = () => {
+      return {
+        index: 0,
+        timestamp: new Date().toISOString(),
+        data: 'Genesis Block',
+        prevHash: '0',
+        hash: '0'
+      };
+    };
+
+    const calculateHash = (block) => {
+      return block.index + block.timestamp + block.data + block.prevHash;
+    };
+
+    const addBlock = (data) => {
+      const prevBlock = blockchain[blockchain.length - 1];
+      const newBlock = {
+        index: prevBlock ? prevBlock.index + 1 : 0,
+        timestamp: new Date().toISOString(),
+        data: data,
+        prevHash: prevBlock ? prevBlock.hash : '0',
+        hash: calculateHash({index: prevBlock ? prevBlock.index + 1 : 0, timestamp: new Date().toISOString(), data: data, prevHash: prevBlock ? prevBlock.hash : '0'})
+      };
+      blockchain.push(newBlock);
+    };
+
+    const showBlockchain = () => {
+      const blockchainContainer = document.getElementById('blockchain-container');
+      blockchainContainer.innerHTML = '';
+      blockchain.forEach((block) => {
+        blockchainContainer.innerHTML += `<p>Block: ${block.data} (Hash: ${block.hash})</p>`;
+      });
+    };
+
+    document.getElementById('add-block-btn').addEventListener('click', () => {
+      const dataInput = document.getElementById('data-input');
+      const data = dataInput.value;
+      if (blockchain.length === 0) {
+        blockchain.push(createGenesisBlock());
+      }
+      addBlock(data);
+      dataInput.value = '';
+    });
+
+    document.getElementById('show-blockchain-btn').addEventListener('click', showBlockchain);
+  </script>
+</body>
+</html>
